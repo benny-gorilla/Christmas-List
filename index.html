@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#174b3b">
+  <meta name="description" content="A shared Christmas gift list">
+  <title>Christmas List 2026</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--green:#174b3b;--green2:#28634f;--cream:#f8f5ed;--paper:#fffdf8;--ink:#26332d;--muted:#788078;--gold:#c49a43;--red:#8b3942;--line:#e9e3d7;--shadow:0 8px 24px #233b2d0d}
+    *{box-sizing:border-box} body{margin:0;background:var(--cream);color:var(--ink);font-family:"DM Sans",sans-serif}
+    button,input,textarea{font:inherit} button{cursor:pointer}
+    .wrap{max-width:760px;margin:auto;padding:22px 16px 48px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
+    .brand{display:flex;align-items:center;gap:11px}.brand-icon{width:42px;height:42px;border-radius:13px;background:var(--green);display:grid;place-items:center;box-shadow:var(--shadow)}
+    .brand-icon img{width:26px;height:26px}.brand h1{font:700 23px "Playfair Display",serif;margin:0;color:var(--green);letter-spacing:-.3px}
+    .year{font-size:12px;font-weight:700;color:var(--red);background:#f1e5e2;padding:8px 11px;border-radius:99px;white-space:nowrap}
+    .toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+    .status{font-size:12px;color:var(--muted);margin-left:auto}
+    .btn{border:0;border-radius:11px;padding:10px 14px;font-weight:700;font-size:13px}
+    .primary{background:var(--green);color:white}.secondary{background:#e9eee8;color:var(--green)}.quiet{background:transparent;color:var(--muted);padding:8px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 22px}
+    .stat{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:14px 12px;box-shadow:var(--shadow)}
+    .stat strong{display:block;font:700 24px "Playfair Display",serif;color:var(--green)}.stat span{font-size:11px;color:var(--muted);font-weight:600}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
+    .section-head h2{font:700 19px "Playfair Display",serif;color:var(--green);margin:0}
+    .people{display:grid;gap:11px}
+    .person{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:15px 16px;box-shadow:var(--shadow)}
+    .person-top{display:flex;align-items:center;gap:12px}
+    .avatar{width:39px;height:39px;border-radius:50%;background:#e8eee7;color:var(--green);display:grid;place-items:center;font-weight:700}
+    .person-main{flex:1;min-width:0}.person-name{font-weight:700}.person-sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .progress{height:5px;background:#eeeae1;border-radius:9px;margin-top:11px;overflow:hidden}.progress i{display:block;height:100%;background:var(--gold);border-radius:9px}
+    .person-actions{display:flex;gap:5px}.small-btn{border:0;background:transparent;color:var(--muted);padding:7px;border-radius:8px}
+    .gift-list{display:grid;gap:9px;margin-top:14px}
+    .gift{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;background:#faf8f2;border-radius:11px;border:1px solid #f0ebdf}
+    .gift input{accent-color:var(--green);width:18px;height:18px;margin:2px 0 0}
+    .gift-info{flex:1;min-width:0}.gift-name{font-size:14px;font-weight:600;overflow-wrap:anywhere}.gift-name.bought{text-decoration:line-through;color:#899188}
+    .gift-note{font-size:12px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+    .gift-actions{display:flex;gap:2px}.gift-actions button{border:0;background:transparent;color:#8b918a;padding:4px}
+    .misc{border:1px dashed #d9cba9;background:#fbf8ef;border-radius:15px;padding:15px}
+    .empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 12px}
+    .hidden{display:none!important}
+    .panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:var(--shadow);margin-bottom:14px}
+    .panel h3{font:700 18px "Playfair Display",serif;color:var(--green);margin:0 0 13px}
+    label{display:block;font-size:12px;font-weight:700;color:#59665d;margin:11px 0 5px}
+    input[type=text],textarea,select{width:100%;border:1px solid #deded4;border-radius:10px;padding:11px;background:white;color:var(--ink);outline-color:var(--gold)}
+    textarea{min-height:70px;resize:vertical}
+    .form-actions{display:flex;gap:8px;margin-top:14px}
+    .notice{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0}
+    .error{color:#a33d42}.success{color:var(--green)}
+    .back{color:var(--green);font-weight:700;border:0;background:none;padding:0 0 15px}
+    footer{text-align:center;color:#9a9c91;font-size:11px;margin-top:32px}
+    @media(min-width:600px){.people{grid-template-columns:1fr 1fr}.person{align-self:start}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="brand-icon"><img src="icon.svg" alt=""></div><h1>Christmas List</h1></div>
+    <div class="year">Christmas 2026</div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn primary" id="signInBtn">Sign in with Google</button>
+    <button class="btn secondary hidden" id="refreshBtn">Refresh</button>
+    <button class="btn secondary hidden" id="addPersonBtn">+ Add person</button>
+    <span class="status" id="status">Sign in to load your shared list</span>
+  </div>
+  <div id="message" class="notice" role="status"></div>
+
+  <main id="app" class="hidden">
+    <section class="stats">
+      <div class="stat"><strong id="peopleCount">0</strong><span>PEOPLE</span></div>
+      <div class="stat"><strong id="giftCount">0</strong><span>PLANNED GIFTS</span></div>
+      <div class="stat"><strong id="boughtCount">0</strong><span>BOUGHT</span></div>
+    </section>
+
+    <div class="section-head"><h2>Gift lists</h2></div>
+    <div id="people" class="people"></div>
+
+    <div class="section-head"><h2>Unallocated gifts</h2><button class="btn secondary" id="addMiscBtn">+ Add gift</button></div>
+    <section class="misc"><div id="miscGifts"></div></section>
+  </main>
+
+  <section id="personForm" class="panel hidden">
+    <button class="back" id="cancelPerson">← Back to list</button>
+    <h3 id="personFormTitle">Add a person</h3>
+    <label for="personName">Name</label><input id="personName" type="text" maxlength="100" placeholder="e.g. Alex">
+    <div class="form-actions"><button class="btn primary" id="savePerson">Save person</button><button class="btn secondary" id="cancelPerson2">Cancel</button></div>
+  </section>
+
+  <section id="giftForm" class="panel hidden">
+    <button class="back" id="cancelGift">← Back to list</button>
+    <h3 id="giftFormTitle">Add a gift</h3>
+    <label for="giftName">Gift name</label><input id="giftName" type="text" maxlength="200" placeholder="What are you buying?">
+    <label for="giftPerson">For</label><select id="giftPerson"></select>
+    <label for="giftNotes">Notes (optional)</label><textarea id="giftNotes" maxlength="1000" placeholder="Size, colour, link, ideas..."></textarea>
+    <div class="form-actions"><button class="btn primary" id="saveGift">Save gift</button><button class="btn secondary" id="cancelGift2">Cancel</button></div>
+  </section>
+  <footer>Made for keeping Christmas organised ✦</footer>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+/* SETUP: paste your Google OAuth Web client ID between the quotes below. */
+const GOOGLE_CLIENT_ID = "PASTE_YOUR_GOOGLE_OAUTH_CLIENT_ID_HERE";
+const SPREADSHEET_ID = "1jq6rr1Nl6dRxaK7qO7uJFYkdw2ArMEcYcWd94s4a89A";
+const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+let tokenClient, accessToken = null, people = [], gifts = [], editingPerson = null, editingGift = null;
+const $ = id => document.getElementById(id);
+const msg = (text, kind="") => { $("message").textContent=text; $("message").className="notice "+kind; };
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : "id-"+Date.now()+"-"+Math.random().toString(16).slice(2));
+const now = () => new Date().toISOString();
+
+window.addEventListener("load", () => {
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  $("signInBtn").addEventListener("click", signIn);
+  $("refreshBtn").addEventListener("click", loadData);
+  $("addPersonBtn").addEventListener("click", () => openPersonForm());
+  $("addMiscBtn").addEventListener("click", () => openGiftForm(null));
+  $("savePerson").addEventListener("click", savePerson);
+  $("saveGift").addEventListener("click", saveGift);
+  ["cancelPerson","cancelPerson2"].forEach(id => $(id).addEventListener("click", closeForms));
+  ["cancelGift","cancelGift2"].forEach(id => $(id).addEventListener("click", closeForms));
+  if (!GOOGLE_CLIENT_ID.startsWith("...") && GOOGLE_CLIENT_ID !== "PASTE_YOUR_GOOGLE_OAUTH_CLIENT_ID_HERE") {
+    waitForGoogle();
+  } else {
+    msg("The app files are ready. Add your Google OAuth Client ID to index.html, then publish the site.", "");
+  }
+});
+function waitForGoogle(){
+  if (!window.google?.accounts?.oauth2) return setTimeout(waitForGoogle,150);
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID, scope: SCOPES,
+    callback: async response => {
+      if (response.error) return msg("Google sign-in failed: "+response.error,"error");
+      accessToken = response.access_token;
+      $("signInBtn").classList.add("hidden"); $("refreshBtn").classList.remove("hidden");
+      $("addPersonBtn").classList.remove("hidden"); $("app").classList.remove("hidden");
+      $("status").textContent="Connected to Google Sheets";
+      await loadData();
+    }
+  });
+}
+function signIn(){
+  if (!tokenClient) return msg("Google sign-in is not configured yet. Add your OAuth Client ID first.","error");
+  tokenClient.requestAccessToken({prompt:"consent"});
+}
+async function api(range, method="GET", values){
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}`+
+    (method==="PUT" ? "?valueInputOption=USER_ENTERED" : "");
+  const res = await fetch(url,{method,headers:{Authorization:"Bearer "+accessToken,"Content-Type":"application/json"},
+    ...(method==="PUT" ? {body:JSON.stringify({range,majorDimension:"ROWS",values})} : {})});
+  const data=await res.json();
+  if(!res.ok) throw new Error(data.error?.message || "Google Sheets request failed");
+  return data;
+}
+async function append(range, values){
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  const res=await fetch(url,{method:"POST",headers:{Authorization:"Bearer "+accessToken,"Content-Type":"application/json"},body:JSON.stringify({values})});
+  const data=await res.json(); if(!res.ok) throw new Error(data.error?.message || "Could not save to Google Sheets"); return data;
+}
+async function loadData(){
+  try{
+    $("status").textContent="Loading shared list…"; msg("");
+    const [p,g]=await Promise.all([api("People!A2:C"),api("Gifts!A2:G")]);
+    people=(p.values||[]).filter(r=>r[0] && r[1]).map(r=>({id:r[0],name:r[1],created:r[2]||""}));
+    gifts=(g.values||[]).filter(r=>r[0] && r[1]).map(r=>({id:r[0],name:r[1],personId:r[2]||"",status:r[3]||"Planned",notes:r[4]||"",created:r[5]||"",updated:r[6]||""}));
+    render(); $("status").textContent="Synced with Google Sheets";
+  }catch(e){$("status").textContent="Not connected";msg(e.message+" — check that the sheet tabs and column headings match the supplied template, and that this Google account has Editor access.","error");}
+}
+function render(){
+  $("peopleCount").textContent=people.length;
+  $("giftCount").textContent=gifts.length;
+  $("boughtCount").textContent=gifts.filter(g=>g.status==="Bought").length;
+  const holder=$("people"); holder.innerHTML="";
+  if(!people.length) holder.innerHTML='<div class="empty">No people added yet. Add someone to get started.</div>';
+  people.forEach(p=>{
+    const list=gifts.filter(g=>g.personId===p.id), bought=list.filter(g=>g.status==="Bought").length;
+    const card=document.createElement("article"); card.className="person";
+    card.innerHTML=`<div class="person-top"><div class="avatar">${escapeHtml(p.name.trim().charAt(0).toUpperCase())}</div><div class="person-main"><div class="person-name">${escapeHtml(p.name)}</div><div class="person-sub">${bought} of ${list.length} gifts bought</div></div><div class="person-actions"><button class="small-btn" title="Edit person" data-action="edit-person">✎</button><button class="small-btn" title="Delete person" data-action="delete-person">×</button></div></div><div class="progress"><i style="width:${list.length?bought/list.length*100:0}%"></i></div><div class="gift-list"></div><button class="btn secondary" style="margin-top:12px" data-action="add-gift">+ Add gift</button>`;
+    card.querySelector('[data-action="edit-person"]').onclick=()=>openPersonForm(p);
+    card.querySelector('[data-action="delete-person"]').onclick=()=>deletePerson(p);
+    card.querySelector('[data-action="add-gift"]').onclick=()=>openGiftForm(p.id);
+    const gl=card.querySelector(".gift-list");
+    if(!list.length) gl.innerHTML='<div class="notice">No gifts on the list yet.</div>';
+    list.forEach(g=>gl.appendChild(giftElement(g)));
+    holder.appendChild(card);
+  });
+  const misc=$("miscGifts"); misc.innerHTML="";
+  const unallocated=gifts.filter(g=>!g.personId);
+  if(!unallocated.length) misc.innerHTML='<div class="empty">No unallocated gifts.</div>';
+  unallocated.forEach(g=>misc.appendChild(giftElement(g)));
+}
+function giftElement(g){
+  const el=document.createElement("div"); el.className="gift";
+  const check=document.createElement("input"); check.type="checkbox"; check.checked=g.status==="Bought"; check.setAttribute("aria-label","Mark "+g.name+" as bought");
+  check.onchange=()=>updateGift(g,{status:check.checked?"Bought":"Planned"});
+  const info=document.createElement("div"); info.className="gift-info";
+  const name=document.createElement("div"); name.className="gift-name"+(g.status==="Bought"?" bought":""); name.textContent=g.name;
+  info.appendChild(name);
+  if(g.notes){const note=document.createElement("div");note.className="gift-note";note.textContent=g.notes;info.appendChild(note);}
+  const actions=document.createElement("div");actions.className="gift-actions";
+  const edit=document.createElement("button");edit.textContent="✎";edit.title="Edit gift";edit.onclick=()=>openGiftForm(g.personId,g);
+  const del=document.createElement("button");del.textContent="×";del.title="Delete gift";del.onclick=()=>deleteGift(g);
+  actions.append(edit,del);el.append(check,info,actions);return el;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function openPersonForm(p=null){editingPerson=p?.id||null;$("personFormTitle").textContent=p?"Edit person":"Add a person";$("personName").value=p?.name||"";showOnly("personForm");}
+function openGiftForm(personId=null,g=null){editingGift=g?.id||null;$("giftFormTitle").textContent=g?"Edit gift":"Add a gift";$("giftName").value=g?.name||"";$("giftNotes").value=g?.notes||"";const s=$("giftPerson");s.innerHTML='<option value="">Unallocated</option>';people.forEach(p=>{const o=document.createElement("option");o.value=p.id;o.textContent=p.name;s.appendChild(o)});s.value=g?g.personId:(personId||"");showOnly("giftForm");}
+function showOnly(id){$("app").classList.add("hidden");$("personForm").classList.add("hidden");$("giftForm").classList.add("hidden");$(id).classList.remove("hidden");}
+function closeForms(){$("personForm").classList.add("hidden");$("giftForm").classList.add("hidden");$("app").classList.remove("hidden");}
+async function savePerson(){
+  const name=$("personName").value.trim();if(!name)return msg("Please enter a name.","error");
+  try{
+    if(editingPerson){const idx=people.findIndex(p=>p.id===editingPerson);const row=idx+2;await api(`People!B${row}:B${row}`,"PUT",[[name]]);}
+    else await append("People!A:C",[[uuid(),name,now()]]);
+    closeForms();await loadData();
+  }catch(e){msg(e.message,"error");}
+}
+async function saveGift(){
+  const name=$("giftName").value.trim();if(!name)return msg("Please enter a gift name.","error");
+  const personId=$("giftPerson").value,notes=$("giftNotes").value.trim();
+  try{
+    if(editingGift){
+      const idx=gifts.findIndex(g=>g.id===editingGift),row=idx+2,g=gifts[idx];
+      await api(`Gifts!B${row}:G${row}`,"PUT",[[name,personId,g.status,notes,g.created,now()]]);
+    }else await append("Gifts!A:G",[[uuid(),name,personId,"Planned",notes,now(),now()]]);
+    closeForms();await loadData();
+  }catch(e){msg(e.message,"error");}
+}
+async function updateGift(g,patch){
+  const idx=gifts.findIndex(x=>x.id===g.id),row=idx+2,updated={...g,...patch,updated:now()};
+  try{await api(`Gifts!D${row}:G${row}`,"PUT",[[updated.status,updated.notes,updated.created,updated.updated]]);await loadData();}
+  catch(e){msg(e.message,"error");await loadData();}
+}
+async function deleteGift(g){
+  if(!confirm(`Delete "${g.name}"?`))return;
+  try{await deleteRows("Gifts",gifts.findIndex(x=>x.id===g.id)+1);await loadData();}catch(e){msg(e.message,"error");}
+}
+async function deletePerson(p){
+  if(!confirm(`Delete ${p.name}? Their gifts will be left in Unallocated gifts.`))return;
+  try{
+    const row=people.findIndex(x=>x.id===p.id)+2;
+    // Clear the Person ID on their gifts before deleting the person row.
+    for(const g of gifts.filter(x=>x.personId===p.id)){const gr=gifts.findIndex(x=>x.id===g.id)+2;await api(`Gifts!C${gr}:C${gr}`,"PUT",[[""]]);}
+    await deleteRows("People",row-1);await loadData();
+  }catch(e){msg(e.message,"error");}
+}
+async function deleteRows(tab,indexZeroBased){
+  const meta=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties`,{headers:{Authorization:"Bearer "+accessToken}}).then(r=>r.json());
+  if(meta.error)throw new Error(meta.error.message);
+  const sheet=meta.sheets.find(s=>s.properties.title===tab);if(!sheet)throw new Error("Missing sheet tab: "+tab);
+  const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}:batchUpdate`,{method:"POST",headers:{Authorization:"Bearer "+accessToken,"Content-Type":"application/json"},body:JSON.stringify({requests:[{deleteDimension:{range:{sheetId:sheet.properties.sheetId,dimension:"ROWS",startIndex:indexZeroBased,endIndex:indexZeroBased+1}}}]})});
+  const data=await res.json();if(!res.ok)throw new Error(data.error?.message||"Could not delete row");
+}
+</script>
+</body>
+</html>
