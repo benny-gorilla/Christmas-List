@@ -235,15 +235,13 @@ function waitForGoogle(){
         $("addPersonBtn").classList.remove("hidden");
         await loadData();
       } else {
-        msg("Choose your Christmas List spreadsheet to give this app access to that file.");
-        openSpreadsheetPicker();
+        msg("Google sign-in succeeded. Now tap Choose spreadsheet and select your shared Christmas List.");
       }
     }
   });
-  // Try to reuse the existing Google authorisation without showing a prompt.
-  // If Google requires interaction, the callback leaves the manual sign-in button visible.
-  $("status").textContent = "Reconnecting to Google…";
-  tokenClient.requestAccessToken({prompt: ""});
+  // Do not start OAuth automatically on app launch. Google requires the token
+  // request to be initiated by a user gesture; the user taps the sign-in button.
+  $("status").textContent = "Ready to sign in";
 }
 function signIn(){
   if (!tokenClient) return msg("Google sign-in is not configured yet. Add your OAuth Client ID first.","error");
