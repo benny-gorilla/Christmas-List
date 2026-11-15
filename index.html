@@ -147,6 +147,22 @@ window.addEventListener("load", () => {
 let authInitialised = false;
 let pickerLoadStarted = false;
 let authHasBeenGranted = localStorage.getItem("christmasListAuthGranted") === "yes";
+const SAVED_TOKEN_KEY = "christmasListAccessToken";
+const SAVED_TOKEN_EXPIRY_KEY = "christmasListAccessTokenExpiry";
+
+function restoreSavedAccessToken(){
+  const savedToken = localStorage.getItem(SAVED_TOKEN_KEY);
+  const expiry = Number(localStorage.getItem(SAVED_TOKEN_EXPIRY_KEY) || 0);
+  // Leave a 60-second safety margin so we do not start a Sheets request
+  // with a token that is about to expire.
+  if (!savedToken || !expiry || Date.now() >= expiry - 60000) {
+    localStorage.removeItem(SAVED_TOKEN_KEY);
+    localStorage.removeItem(SAVED_TOKEN_EXPIRY_KEY);
+    return false;
+  }
+  accessToken = savedToken;
+  return true;
+}
 
 function waitForGoogle(){
   if (!window.google?.accounts?.oauth2) return setTimeout(waitForGoogle,150);
@@ -166,6 +182,9 @@ function waitForGoogle(){
         return;
       }
       accessToken = response.access_token;
+      const expiresInSeconds = Number(response.expires_in || 3600);
+      localStorage.setItem(SAVED_TOKEN_KEY, accessToken);
+      localStorage.setItem(SAVED_TOKEN_EXPIRY_KEY, String(Date.now() + expiresInSeconds * 1000));
       localStorage.setItem("christmasListAuthGranted","yes");
       authHasBeenGranted = true;
       $("signInBtn").classList.add("hidden");
@@ -183,13 +202,25 @@ function waitForGoogle(){
     }
   });
 
-  // Reuse an existing grant silently on later launches. If Google requires
-  // interaction, the callback displays the sign-in button instead.
-  if (authHasBeenGranted) {
-    $("status").textContent = "Reconnecting to Google…";
-    tokenClient.requestAccessToken({prompt:"none"});
+  // Reuse the last access token while it is still valid. Google access
+  // tokens are short-lived; once expired, a user gesture is required to get
+  // another token through the browser-only OAuth token model.
+  if (restoreSavedAccessToken()) {
+    $("signInBtn").classList.add("hidden");
+    $("refreshBtn").classList.remove("hidden");
+    $("status").textContent = "Google connected";
+    if (selectedSpreadsheetId) {
+      $("chooseSheetBtn").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      $("addPersonBtn").classList.remove("hidden");
+      loadData();
+    } else {
+      $("chooseSheetBtn").classList.remove("hidden");
+      msg("Google is connected. Choose your shared Christmas List spreadsheet.");
+    }
   } else {
     $("status").textContent = "Ready to sign in";
+    $("signInBtn").classList.remove("hidden");
   }
 }
 
