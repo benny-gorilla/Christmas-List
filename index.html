@@ -55,13 +55,6 @@
     .error{color:#a33d42}.success{color:var(--green)}
     .back{color:var(--green);font-weight:700;border:0;background:none;padding:0 0 15px}
     footer{text-align:center;color:#9a9c91;font-size:11px;margin-top:32px}
-    .legal-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:10px}
-    .legal-links a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
-    .legal{margin-top:22px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);font-size:13px;line-height:1.6}
-    .legal h2{font:700 20px "Playfair Display",serif;color:var(--green);margin:0 0 10px}
-    .legal h3{font-size:14px;color:var(--green);margin:18px 0 5px}
-    .legal p{margin:7px 0;color:#566158}
-    .legal a{color:var(--green)}
     @media(min-width:600px){.people{grid-template-columns:1fr 1fr}.person{align-self:start}}
   </style>
 </head>
@@ -110,71 +103,7 @@
     <label for="giftNotes">Notes (optional)</label><textarea id="giftNotes" maxlength="1000" placeholder="Size, colour, link, ideas..."></textarea>
     <div class="form-actions"><button class="btn primary" id="saveGift">Save gift</button><button class="btn secondary" id="cancelGift2">Cancel</button></div>
   </section>
-  <footer>
-    <div>Christmas List is a shared gift organiser. Sign in with Google to view and update the gift list stored in the connected Google Sheet.</div>
-    <div>Made for keeping Christmas organised ✦</div>
-    <nav class="legal-links" aria-label="Legal information">
-      <a href="#privacy-policy">Privacy Policy</a>
-      <a href="#terms-of-service">Terms of Service</a>
-    </nav>
-  </footer>
-
-  <section class="legal" id="privacy-policy">
-    <h2>Privacy Policy</h2>
-    <p><strong>Last updated: 15 November 2026</strong></p>
-    <p>Christmas List is a shared gift-planning app. This policy explains what information the app accesses and how it is used.</p>
-
-    <h3>Information and Google account access</h3>
-    <p>When you choose to sign in, Christmas List uses Google OAuth to ask for permission to access Google Sheets. The app requests the Google Sheets permission needed to read and make changes to the spreadsheet configured for this app. Google handles the sign-in process.</p>
-    <p>The app does not ask for or use your Gmail, Google Drive files generally, contacts, calendar, or Google account profile information as part of its gift-list features.</p>
-
-    <h3>Information stored in the spreadsheet</h3>
-    <p>The app reads and writes the people and gift information in the connected Google Sheet. This may include names, gift names, gift status (planned or bought), optional notes, and record dates. Anyone who has been given access to that spreadsheet may be able to see or edit its contents.</p>
-
-    <h3>How information is used and shared</h3>
-    <p>Spreadsheet information is used only to display and manage the shared Christmas gift list. The app does not sell personal information, use it for advertising, or share it with the app owner through a separate database. The app sends requests directly from your browser to the Google Sheets API. Google processes those requests under Google's own terms and privacy policy.</p>
-
-    <h3>Tokens and storage</h3>
-    <p>Google provides an access token to the app after you authorise it. The app uses that token in the browser to make authorised Sheets API requests. The app code does not deliberately save the access token in its own database or send it to an app-owner server. Google may use its own cookies and security mechanisms during sign-in.</p>
-
-    <h3>Retention and deletion</h3>
-    <p>Gift-list records remain in the connected Google Sheet until someone with spreadsheet access changes or deletes them. To remove information, edit or delete it in the spreadsheet or use the app's delete controls. You can also revoke the app's Google account access from your Google Account security settings.</p>
-
-    <h3>Security</h3>
-    <p>Access is controlled by Google sign-in and the sharing permissions on the spreadsheet. Only share the spreadsheet with people you trust. No internet-connected service can guarantee absolute security.</p>
-
-    <h3>Changes and contact</h3>
-    <p>This policy may be updated if the app's features or data practices change. For questions about this app or its data, use the support contact shown on the Google OAuth consent screen.</p>
-  </section>
-
-  <section class="legal" id="terms-of-service">
-    <h2>Terms of Service</h2>
-    <p><strong>Last updated: 15 November 2026</strong></p>
-    <p>By using Christmas List, you agree to these terms.</p>
-
-    <h3>Purpose of the app</h3>
-    <p>Christmas List is a simple gift-planning tool intended to help people maintain a shared list of people, gift ideas, notes, and purchase status.</p>
-
-    <h3>Access and acceptable use</h3>
-    <p>You must sign in with a Google account that has been granted access to the connected spreadsheet. You are responsible for keeping your Google account secure and for only sharing spreadsheet access with people you trust.</p>
-    <p>You agree to use the app lawfully and not to attempt to disrupt, misuse, or gain unauthorised access to the app, the spreadsheet, or Google's services.</p>
-
-    <h3>Your information</h3>
-    <p>You are responsible for the names, gift details, and notes that you enter. Do not add information that you do not have permission to share. Spreadsheet collaborators may be able to view, change, or delete shared records.</p>
-
-    <h3>Availability and data</h3>
-    <p>The app is provided free of charge and on an “as available” basis. It depends on GitHub Pages, Google sign-in, internet access, and the Google Sheets API. Access may occasionally be interrupted or changed. Keep your own copy or backup of important spreadsheet information.</p>
-
-    <h3>No warranty or liability</h3>
-    <p>To the extent permitted by law, the app is provided without warranties or guarantees. The app owner is not responsible for loss of gift-list data, service interruptions, or decisions made using information in the list. Nothing in these terms excludes liability that cannot legally be excluded.</p>
-
-    <h3>Changes or ending use</h3>
-    <p>The app may be changed, suspended, or discontinued. You can stop using it at any time and revoke its Google access through your Google Account settings. Spreadsheet data can be managed separately by anyone with the necessary spreadsheet permissions.</p>
-
-    <h3>Changes to these terms</h3>
-    <p>These terms may be updated when the app changes. The latest version will be published on this page.</p>
-  </section>
-</div>
+  <footer>Made for keeping Christmas organised ✦</footer>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
@@ -228,6 +157,7 @@ function waitForGoogle(){
       if (response.error || !response.access_token) {
         accessToken = null;
         $("signInBtn").classList.remove("hidden");
+        $("chooseSheetBtn").classList.add("hidden");
         $("status").textContent = "Sign-in required";
         const detail = response.error ? " (" + response.error + ")" : "";
         msg("Google needs you to sign in. Tap Sign in with Google to continue." + detail, "error");
@@ -238,7 +168,8 @@ function waitForGoogle(){
       authHasBeenGranted = true;
       $("signInBtn").classList.add("hidden");
       $("refreshBtn").classList.remove("hidden");
-      $("chooseSheetBtn").classList.remove("hidden");
+      if (selectedSpreadsheetId) $("chooseSheetBtn").classList.add("hidden");
+      else $("chooseSheetBtn").classList.remove("hidden");
       $("status").textContent = "Google connected";
       if (selectedSpreadsheetId) {
         $("app").classList.remove("hidden");
@@ -254,7 +185,7 @@ function waitForGoogle(){
   // interaction, the callback displays the sign-in button instead.
   if (authHasBeenGranted) {
     $("status").textContent = "Reconnecting to Google…";
-    tokenClient.requestAccessToken({prompt:""});
+    tokenClient.requestAccessToken({prompt:"none"});
   } else {
     $("status").textContent = "Ready to sign in";
   }
@@ -332,6 +263,7 @@ function pickerCallback(data){
     localStorage.setItem("christmasListSpreadsheetId", selectedSpreadsheetId);
     $("app").classList.remove("hidden");
     $("addPersonBtn").classList.remove("hidden");
+    $("chooseSheetBtn").classList.add("hidden");
     msg("Spreadsheet connected on this device.","success");
     loadData();
   } else if (data.action === google.picker.Action.CANCEL) {
