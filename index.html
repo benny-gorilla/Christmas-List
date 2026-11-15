@@ -213,19 +213,29 @@ window.addEventListener("load", () => {
     msg("Add your Google OAuth Client ID, API key and project number in index.html before publishing.", "");
   }
 });
+let authInitialised = false;
+let pickerLoadStarted = false;
+let authHasBeenGranted = localStorage.getItem("christmasListAuthGranted") === "yes";
+
 function waitForGoogle(){
   if (!window.google?.accounts?.oauth2) return setTimeout(waitForGoogle,150);
+  if (authInitialised) return;
+  authInitialised = true;
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID, scope: SCOPES,
+    client_id: GOOGLE_CLIENT_ID,
+    scope: SCOPES,
     callback: async response => {
-      if (response.error) {
+      if (response.error || !response.access_token) {
         accessToken = null;
         $("signInBtn").classList.remove("hidden");
         $("status").textContent = "Sign-in required";
-        msg("Google needs you to sign in. Tap Sign in with Google to continue.", "error");
+        const detail = response.error ? " (" + response.error + ")" : "";
+        msg("Google needs you to sign in. Tap Sign in with Google to continue." + detail, "error");
         return;
       }
       accessToken = response.access_token;
+      localStorage.setItem("christmasListAuthGranted","yes");
+      authHasBeenGranted = true;
       $("signInBtn").classList.add("hidden");
       $("refreshBtn").classList.remove("hidden");
       $("chooseSheetBtn").classList.remove("hidden");
@@ -235,67 +245,84 @@ function waitForGoogle(){
         $("addPersonBtn").classList.remove("hidden");
         await loadData();
       } else {
-        msg("Google sign-in succeeded. Now tap Choose spreadsheet and select your shared Christmas List.");
+        msg("Google sign-in succeeded. Tap Choose spreadsheet and select your shared Christmas List.");
       }
     }
   });
-  // Do not start OAuth automatically on app launch. Google requires the token
-  // request to be initiated by a user gesture; the user taps the sign-in button.
-  $("status").textContent = "Ready to sign in";
-}
-function signIn(){
-  if (!tokenClient) return msg("Google sign-in is not configured yet. Add your OAuth Client ID first.","error");
-  tokenClient.requestAccessToken({prompt:"consent"});
+
+  // Reuse an existing grant silently on later launches. If Google requires
+  // interaction, the callback displays the sign-in button instead.
+  if (authHasBeenGranted) {
+    $("status").textContent = "Reconnecting to Google…";
+    tokenClient.requestAccessToken({prompt:""});
+  } else {
+    $("status").textContent = "Ready to sign in";
+  }
 }
 
-let pickerLoadStarted = false;
+function signIn(){
+  if (!tokenClient) return msg("Google sign-in is still loading. Try again in a moment.","error");
+  // Ask for consent only on the first authorisation on this device. Later
+  // sign-ins reuse the existing grant where Google allows it.
+  tokenClient.requestAccessToken({prompt: authHasBeenGranted ? "" : "consent"});
+}
+
 function waitForPicker(){
-  if (pickerLoadStarted || pickerReady) return;
+  if (pickerReady || pickerLoadStarted) return;
   if (!window.gapi || typeof window.gapi.load !== "function") {
-    return setTimeout(waitForPicker, 200);
+    return setTimeout(waitForPicker,250);
   }
   pickerLoadStarted = true;
   try {
-    gapi.load("picker", {
-      callback: () => {
+    window.gapi.load("picker", {
+      callback: function(){
+        pickerLoadStarted = false;
         pickerReady = !!(window.google && window.google.picker && window.google.picker.PickerBuilder);
         if (pickerReady) {
-          msg("Google file picker is ready. Tap Choose spreadsheet.");
+          if (!accessToken) msg("Google file picker is ready. Sign in, then choose your spreadsheet.");
         } else {
-          pickerLoadStarted = false;
-          msg("Google file picker did not finish loading. Please try again.", "error");
+          msg("Google's picker library loaded but its controls were unavailable. Check that Google Picker API is enabled.", "error");
         }
       },
-      onerror: () => {
+      onerror: function(){
         pickerLoadStarted = false;
-        msg("Google file picker couldn't load. Check your connection and try again.", "error");
+        msg("Google Picker library failed to load. Check your connection and API configuration, then tap Choose spreadsheet to retry.", "error");
       },
-      timeout: 10000,
-      ontimeout: () => {
+      timeout: 15000,
+      ontimeout: function(){
         pickerLoadStarted = false;
-        msg("Google file picker timed out while loading. Please try again.", "error");
+        msg("Google Picker library timed out. Tap Choose spreadsheet to retry.", "error");
       }
     });
-  } catch (e) {
+  } catch(e) {
     pickerLoadStarted = false;
-    msg("Google file picker error: " + e.message, "error");
+    msg("Google Picker initialisation failed: " + e.message, "error");
   }
 }
+
 function openSpreadsheetPicker(){
   if (!accessToken) return msg("Please sign in with Google first.","error");
   if (GOOGLE_API_KEY === "PASTE_YOUR_GOOGLE_API_KEY_HERE" || GOOGLE_CLOUD_PROJECT_NUMBER === "PASTE_YOUR_PROJECT_NUMBER_HERE")
     return msg("The Google API key and project number still need to be added to index.html.","error");
-  if (!pickerReady || !window.google?.picker) return msg("Google file picker is still loading. Try again in a moment.","error");
-  const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS).setMimeTypes("application/vnd.google-apps.spreadsheet");
-  const picker = new google.picker.PickerBuilder()
-    .addView(view)
-    .setOAuthToken(accessToken)
-    .setDeveloperKey(GOOGLE_API_KEY)
-    .setAppId(GOOGLE_CLOUD_PROJECT_NUMBER)
-    .setOrigin(window.location.protocol + "//" + window.location.host)
-    .setCallback(pickerCallback)
-    .build();
-  picker.setVisible(true);
+  if (!pickerReady || !window.google?.picker?.PickerBuilder) {
+    waitForPicker();
+    return msg("Google Picker is not ready yet. It is being initialised; tap Choose spreadsheet again in a few seconds.","error");
+  }
+  try {
+    const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS)
+      .setMimeTypes("application/vnd.google-apps.spreadsheet");
+    const picker = new google.picker.PickerBuilder()
+      .addView(view)
+      .setOAuthToken(accessToken)
+      .setDeveloperKey(GOOGLE_API_KEY)
+      .setAppId(GOOGLE_CLOUD_PROJECT_NUMBER)
+      .setOrigin(window.location.protocol + "//" + window.location.host)
+      .setCallback(pickerCallback)
+      .build();
+    picker.setVisible(true);
+  } catch(e) {
+    msg("Couldn't open Google Picker: " + e.message, "error");
+  }
 }
 function pickerCallback(data){
   if (data.action === google.picker.Action.PICKED) {
