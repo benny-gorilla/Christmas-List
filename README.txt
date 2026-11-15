@@ -42,3 +42,19 @@ The spreadsheet ID is already set in `index.html`.
 - The app uses the row order in the sheet when editing/deleting. Avoid manually sorting the People or Gifts tabs while the app is in use.
 - The PWA shell can open offline, but reading/writing the shared list requires internet access.
 - The manifest requests portrait orientation; Android/browser support for enforcing orientation varies.
+
+
+## Additional Google Cloud setup for the Drive file picker
+
+The app now uses the narrower `drive.file` OAuth scope. Each device/user must choose the Christmas List spreadsheet once using the in-app **Choose spreadsheet** button. The selected spreadsheet ID is remembered in that browser on that device.
+
+Before publishing this update:
+
+1. In Google Cloud Console, enable **Google Picker API** (in addition to Google Sheets API).
+2. Create an API key under APIs & Services → Credentials.
+3. Restrict the API key to **Google Picker API** and to your GitHub Pages website as an HTTP referrer, e.g. `https://benny-gorilla.github.io/*`.
+4. Find your Google Cloud project **Project number** on the project dashboard.
+5. In `index.html`, replace `PASTE_YOUR_GOOGLE_API_KEY_HERE` and `PASTE_YOUR_PROJECT_NUMBER_HERE` with those values.
+6. Keep the OAuth Client ID already in the file. The OAuth scope is now `https://www.googleapis.com/auth/drive.file`.
+
+Each person signs in and selects the same shared spreadsheet on their own device. They must already have Editor access to the spreadsheet in Google Sheets. The app only requests file access to the spreadsheet each person selects.

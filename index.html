@@ -75,6 +75,7 @@
   <div class="toolbar">
     <button class="btn primary" id="signInBtn">Sign in with Google</button>
     <button class="btn secondary hidden" id="refreshBtn">Refresh</button>
+    <button class="btn secondary hidden" id="chooseSheetBtn">Choose spreadsheet</button>
     <button class="btn secondary hidden" id="addPersonBtn">+ Add person</button>
     <span class="status" id="status">Sign in to load your shared list</span>
   </div>
@@ -176,13 +177,19 @@
 </div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
 <script>
 /* SETUP: paste your Google OAuth Web client ID between the quotes below. */
 const GOOGLE_CLIENT_ID = "942633847011-38suop8h9h8kdl6l1k5jb9ljhvgivmj8.apps.googleusercontent.com";
-const SPREADSHEET_ID = "1jq6rr1Nl6dRxaK7qO7uJFYkdw2ArMEcYcWd94s4a89A";
-const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+const DEFAULT_SPREADSHEET_ID = "1jq6rr1Nl6dRxaK7qO7uJFYkdw2ArMEcYcWd94s4a89A";
+/* Fill these two values from Google Cloud Console before publishing. */
+const GOOGLE_API_KEY = "AIzaSyDtVNG-VzngX1_xh3E7EebD2tbtV3tkOnw";
+const GOOGLE_CLOUD_PROJECT_NUMBER = "942633847011";
+const SCOPES = "https://www.googleapis.com/auth/drive.file";
 
-let tokenClient, accessToken = null, people = [], gifts = [], editingPerson = null, editingGift = null;
+let tokenClient, accessToken = null, pickerReady = false, people = [], gifts = [], editingPerson = null, editingGift = null;
+let selectedSpreadsheetId = localStorage.getItem("christmasListSpreadsheetId") || ""; 
+function spreadsheetId(){ return selectedSpreadsheetId; }
 const $ = id => document.getElementById(id);
 const msg = (text, kind="") => { $("message").textContent=text; $("message").className="notice "+kind; };
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : "id-"+Date.now()+"-"+Math.random().toString(16).slice(2));
@@ -192,16 +199,18 @@ window.addEventListener("load", () => {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
   $("signInBtn").addEventListener("click", signIn);
   $("refreshBtn").addEventListener("click", loadData);
+  $("chooseSheetBtn").addEventListener("click", openSpreadsheetPicker);
   $("addPersonBtn").addEventListener("click", () => openPersonForm());
   $("addMiscBtn").addEventListener("click", () => openGiftForm(null));
   $("savePerson").addEventListener("click", savePerson);
   $("saveGift").addEventListener("click", saveGift);
   ["cancelPerson","cancelPerson2"].forEach(id => $(id).addEventListener("click", closeForms));
   ["cancelGift","cancelGift2"].forEach(id => $(id).addEventListener("click", closeForms));
-  if (!GOOGLE_CLIENT_ID.startsWith("...") && GOOGLE_CLIENT_ID !== "PASTE_YOUR_GOOGLE_OAUTH_CLIENT_ID_HERE") {
+  if (GOOGLE_CLIENT_ID !== "PASTE_YOUR_GOOGLE_OAUTH_CLIENT_ID_HERE") {
     waitForGoogle();
+    waitForPicker();
   } else {
-    msg("The app files are ready. Add your Google OAuth Client ID to index.html, then publish the site.", "");
+    msg("Add your Google OAuth Client ID, API key and project number in index.html before publishing.", "");
   }
 });
 function waitForGoogle(){
@@ -219,10 +228,16 @@ function waitForGoogle(){
       accessToken = response.access_token;
       $("signInBtn").classList.add("hidden");
       $("refreshBtn").classList.remove("hidden");
-      $("addPersonBtn").classList.remove("hidden");
-      $("app").classList.remove("hidden");
-      $("status").textContent = "Connected to Google Sheets";
-      await loadData();
+      $("chooseSheetBtn").classList.remove("hidden");
+      $("status").textContent = "Google connected";
+      if (selectedSpreadsheetId) {
+        $("app").classList.remove("hidden");
+        $("addPersonBtn").classList.remove("hidden");
+        await loadData();
+      } else {
+        msg("Choose your Christmas List spreadsheet to give this app access to that file.");
+        openSpreadsheetPicker();
+      }
     }
   });
   // Try to reuse the existing Google authorisation without showing a prompt.
@@ -234,8 +249,43 @@ function signIn(){
   if (!tokenClient) return msg("Google sign-in is not configured yet. Add your OAuth Client ID first.","error");
   tokenClient.requestAccessToken({prompt:"consent"});
 }
+
+function waitForPicker(){
+  if (!window.gapi || !window.google?.picker) return setTimeout(waitForPicker,200);
+  gapi.load("picker", {callback:()=>{pickerReady=true;}});
+}
+function openSpreadsheetPicker(){
+  if (!accessToken) return msg("Please sign in with Google first.","error");
+  if (GOOGLE_API_KEY === "PASTE_YOUR_GOOGLE_API_KEY_HERE" || GOOGLE_CLOUD_PROJECT_NUMBER === "PASTE_YOUR_PROJECT_NUMBER_HERE")
+    return msg("The Google API key and project number still need to be added to index.html.","error");
+  if (!pickerReady || !window.google?.picker) return msg("Google file picker is still loading. Try again in a moment.","error");
+  const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS).setMimeTypes("application/vnd.google-apps.spreadsheet");
+  const picker = new google.picker.PickerBuilder()
+    .addView(view)
+    .setOAuthToken(accessToken)
+    .setDeveloperKey(GOOGLE_API_KEY)
+    .setAppId(GOOGLE_CLOUD_PROJECT_NUMBER)
+    .setOrigin(window.location.protocol + "//" + window.location.host)
+    .setCallback(pickerCallback)
+    .build();
+  picker.setVisible(true);
+}
+function pickerCallback(data){
+  if (data.action === google.picker.Action.PICKED) {
+    const file = data.docs && data.docs[0];
+    if (!file || !file.id) return msg("Couldn't read the selected spreadsheet. Please try again.","error");
+    selectedSpreadsheetId = file.id;
+    localStorage.setItem("christmasListSpreadsheetId", selectedSpreadsheetId);
+    $("app").classList.remove("hidden");
+    $("addPersonBtn").classList.remove("hidden");
+    msg("Spreadsheet connected on this device.","success");
+    loadData();
+  } else if (data.action === google.picker.Action.CANCEL) {
+    msg("No spreadsheet selected. You can choose it whenever you're ready.");
+  }
+}
 async function api(range, method="GET", values){
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}`+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId()}/values/${encodeURIComponent(range)}`+
     (method==="PUT" ? "?valueInputOption=USER_ENTERED" : "");
   const res = await fetch(url,{method,headers:{Authorization:"Bearer "+accessToken,"Content-Type":"application/json"},
     ...(method==="PUT" ? {body:JSON.stringify({range,majorDimension:"ROWS",values})} : {})});
@@ -244,11 +294,12 @@ async function api(range, method="GET", values){
   return data;
 }
 async function append(range, values){
-  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId()}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   const res=await fetch(url,{method:"POST",headers:{Authorization:"Bearer "+accessToken,"Content-Type":"application/json"},body:JSON.stringify({values})});
   const data=await res.json(); if(!res.ok) throw new Error(data.error?.message || "Could not save to Google Sheets"); return data;
 }
 async function loadData(){
+  if (!spreadsheetId()) return msg("Choose your Christmas List spreadsheet first.");
   try{
     $("status").textContent="Loading shared list…"; msg("");
     const [p,g]=await Promise.all([api("People!A2:C"),api("Gifts!A2:G")]);
@@ -336,10 +387,10 @@ async function deletePerson(p){
   }catch(e){msg(e.message,"error");}
 }
 async function deleteRows(tab,indexZeroBased){
-  const meta=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties`,{headers:{Authorization:"Bearer "+accessToken}}).then(r=>r.json());
+  const meta=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId()}?fields=sheets.properties`,{headers:{Authorization:"Bearer "+accessToken}}).then(r=>r.json());
   if(meta.error)throw new Error(meta.error.message);
   const sheet=meta.sheets.find(s=>s.properties.title===tab);if(!sheet)throw new Error("Missing sheet tab: "+tab);
-  const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}:batchUpdate`,{method:"POST",headers:{Authorization:"Bearer "+accessToken,"Content-Type":"application/json"},body:JSON.stringify({requests:[{deleteDimension:{range:{sheetId:sheet.properties.sheetId,dimension:"ROWS",startIndex:indexZeroBased,endIndex:indexZeroBased+1}}}]})});
+  const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId()}:batchUpdate`,{method:"POST",headers:{Authorization:"Bearer "+accessToken,"Content-Type":"application/json"},body:JSON.stringify({requests:[{deleteDimension:{range:{sheetId:sheet.properties.sheetId,dimension:"ROWS",startIndex:indexZeroBased,endIndex:indexZeroBased+1}}}]})});
   const data=await res.json();if(!res.ok)throw new Error(data.error?.message||"Could not delete row");
 }
 </script>
