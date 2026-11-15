@@ -139,14 +139,26 @@ function waitForGoogle(){
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID, scope: SCOPES,
     callback: async response => {
-      if (response.error) return msg("Google sign-in failed: "+response.error,"error");
+      if (response.error) {
+        accessToken = null;
+        $("signInBtn").classList.remove("hidden");
+        $("status").textContent = "Sign-in required";
+        msg("Google needs you to sign in. Tap Sign in with Google to continue.", "error");
+        return;
+      }
       accessToken = response.access_token;
-      $("signInBtn").classList.add("hidden"); $("refreshBtn").classList.remove("hidden");
-      $("addPersonBtn").classList.remove("hidden"); $("app").classList.remove("hidden");
-      $("status").textContent="Connected to Google Sheets";
+      $("signInBtn").classList.add("hidden");
+      $("refreshBtn").classList.remove("hidden");
+      $("addPersonBtn").classList.remove("hidden");
+      $("app").classList.remove("hidden");
+      $("status").textContent = "Connected to Google Sheets";
       await loadData();
     }
   });
+  // Try to reuse the existing Google authorisation without showing a prompt.
+  // If Google requires interaction, the callback leaves the manual sign-in button visible.
+  $("status").textContent = "Reconnecting to Google…";
+  tokenClient.requestAccessToken({prompt: ""});
 }
 function signIn(){
   if (!tokenClient) return msg("Google sign-in is not configured yet. Add your OAuth Client ID first.","error");
