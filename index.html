@@ -248,9 +248,38 @@ function signIn(){
   tokenClient.requestAccessToken({prompt:"consent"});
 }
 
+let pickerLoadStarted = false;
 function waitForPicker(){
-  if (!window.gapi || !window.google?.picker) return setTimeout(waitForPicker,200);
-  gapi.load("picker", {callback:()=>{pickerReady=true;}});
+  if (pickerLoadStarted || pickerReady) return;
+  if (!window.gapi || typeof window.gapi.load !== "function") {
+    return setTimeout(waitForPicker, 200);
+  }
+  pickerLoadStarted = true;
+  try {
+    gapi.load("picker", {
+      callback: () => {
+        pickerReady = !!(window.google && window.google.picker && window.google.picker.PickerBuilder);
+        if (pickerReady) {
+          msg("Google file picker is ready. Tap Choose spreadsheet.");
+        } else {
+          pickerLoadStarted = false;
+          msg("Google file picker did not finish loading. Please try again.", "error");
+        }
+      },
+      onerror: () => {
+        pickerLoadStarted = false;
+        msg("Google file picker couldn't load. Check your connection and try again.", "error");
+      },
+      timeout: 10000,
+      ontimeout: () => {
+        pickerLoadStarted = false;
+        msg("Google file picker timed out while loading. Please try again.", "error");
+      }
+    });
+  } catch (e) {
+    pickerLoadStarted = false;
+    msg("Google file picker error: " + e.message, "error");
+  }
 }
 function openSpreadsheetPicker(){
   if (!accessToken) return msg("Please sign in with Google first.","error");
